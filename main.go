@@ -62,17 +62,21 @@ func gracefulShutdown(srv *http.Server, rabbit *Rabbit, mongo *Mongo) func(reaso
 	return func(reason interface{}) {
 		log.Println("Server Shutdown:", reason)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		// note: up to 5 sec for each shutdown/disconnect (new context for each)
+		// or share timeout for all operations (reuse context)
+		timeout := 5 * time.Second
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 		if err := srv.Shutdown(ctx); err != nil {
 			log.Println("Error Gracefully Shutting Down API:", err)
 		}
 
-		if err := rabbit.Disconnect(5 * time.Second); err != nil {
+		ctx, cancel = context.WithTimeout(context.Background(), timeout)
+		if err := rabbit.Disconnect(ctx); err != nil {
 			log.Println("Error Gracefully Shutting Down Rabbit:", err)
 		}
 
-		ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel = context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 		if err := mongo.Disconnect(ctx); err != nil {
 			log.Println("Error Gracefully Shutting Down Mongo:", err)
