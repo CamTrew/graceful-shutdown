@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"log"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
+
+const defaultConnectionCloseTimeout = 30 * time.Second
 
 type Rabbit struct {
 	conn    *amqp.Connection
@@ -37,9 +40,15 @@ func (r *Rabbit) Err() <-chan *amqp.Error {
 	return r.errChan
 }
 
-func (r *Rabbit) Disconnect(timeout time.Duration) error {
+func (r *Rabbit) Disconnect(ctx context.Context) error {
 	if r.conn == nil {
 		return nil
 	}
-	return r.conn.CloseDeadline(time.Now().Add(timeout))
+
+	deadline, ok := ctx.Deadline()
+	if !ok {
+		deadline = time.Now().Add(defaultConnectionCloseTimeout)
+	}
+
+	return r.conn.CloseDeadline(deadline)
 }
