@@ -10,4 +10,4 @@ docker-compose up --build -d
 ```
 
 ## Further Reading
-To read more about graceful shutdowns in Go and this code example, visit the blog post https://thegodev.com/graceful-shutdown
+To read more about graceful shutdowns in Go and this code example, visit the blog post https://camerontrew.com/blog/how-to-gracefully-shut-down-your-golang-api-and-its-dependencies/

@@ -1,4 +1,4 @@
-module github.com/thegodev/graceful-shutdown
+module github.com/CamTrew/graceful-shutdown
 
 go 1.20
 
